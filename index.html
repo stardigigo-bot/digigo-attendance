@@ -58,7 +58,7 @@ function seed(){var n=['مبيعات 1','مبيعات 2','مبيعات 3','مب�
 try{D=JSON.parse(localStorage.getItem(KEY))}catch(x){}
 if(!D||!D.emp){D=seed();try{var o=JSON.parse(localStorage.getItem('erp_mkt_v2'));if(o&&o.emp&&o.emp.length){D.emp=o.emp.map(function(e){return{id:e.id,n:e.n,sal:e.sal}});D.att=o.att||[]}}catch(x){}}
 D.att=D.att||[];D.set=D.set||{};D.set.hrs=D.set.hrs||8;D.set.ded=D.set.ded||0;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}if(window.cloudSave)window.cloudSave()}
 function $(i){return document.getElementById(i)}
 function f(n){return Math.round(n).toLocaleString('en-US')}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5)}
@@ -112,6 +112,81 @@ function nv(t){ED=null;go(t)}
 function go(t){tab=t;$('nav').innerHTML=TABS.map(function(x){return'<button class="'+(x[0]==t?'on':'')+'" onclick="nv(\''+x[0]+'\')">'+x[1]+'</button>'}).join('');$('app').innerHTML=V[t]()}
 $('mo').value=M;$('mo').onchange=function(){M=this.value||M;go(tab)};
 go('punch');
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import {getFirestore,collection,doc,getDocs,onSnapshot,writeBatch} from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+// ===== الصق الـ firebaseConfig بتاعك هنا بدل القيم دي =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCJuhKq4FxK5Vjlg7DL5PboDPNIDzRzJys",
+  authDomain: "digigo-attendance.firebaseapp.com",
+  projectId: "digigo-attendance",
+  storageBucket: "digigo-attendance.firebasestorage.app",
+  messagingSenderId: "115847522981",
+  appId: "1:115847522981:web:7cc66ff14f3b94125dbb4c"
+};
+// ===========================================================
+
+const db = getFirestore(initializeApp(firebaseConfig));
+const synced = {emp:{}, att:{}, set:''};
+let ready = false;
+const sk = o => JSON.stringify(o, Object.keys(o).sort());
+const ordEmp = (a,b) => {
+  const na=/^e\d+$/.test(a.id), nb=/^e\d+$/.test(b.id);
+  if(na&&nb) return +a.id.slice(1)-+b.id.slice(1);
+  if(na) return -1; if(nb) return 1;
+  return a.id<b.id?-1:1;
+};
+function refresh(){
+  const a=document.activeElement;
+  if(ED||(a&&/INPUT|SELECT/.test(a.tagName)&&$('app').contains(a))) return;
+  go(tab);
+}
+function push(){
+  const b=writeBatch(db); let n=0;
+  ['emp','att'].forEach(c=>{
+    const cur={};
+    D[c].forEach(x=>{cur[x.id]=sk(x)});
+    Object.keys(cur).forEach(id=>{
+      if(synced[c][id]!==cur[id]){b.set(doc(db,c,id),JSON.parse(cur[id]));synced[c][id]=cur[id];n++}
+    });
+    Object.keys(synced[c]).forEach(id=>{
+      if(!(id in cur)){b.delete(doc(db,c,id));delete synced[c][id];n++}
+    });
+  });
+  const st=sk(D.set);
+  if(st!==synced.set){b.set(doc(db,'meta','settings'),D.set);synced.set=st;n++}
+  if(n) b.commit().catch(e=>{console.error(e);toast('تعذر الحفظ على السيرفر')});
+}
+window.cloudSave = () => { if(ready) push(); };
+
+function fromSnap(c, snap){
+  D[c]=snap.docs.map(d=>({id:d.id,...d.data()}));
+  if(c==='emp') D.emp.sort(ordEmp);
+  synced[c]={}; D[c].forEach(x=>{synced[c][x.id]=sk(x)});
+}
+
+(async function init(){
+  try{
+    const [e,a,s]=await Promise.all([getDocs(collection(db,'emp')),getDocs(collection(db,'att')),getDocs(collection(db,'meta'))]);
+    if(e.empty){ // أول مرة: ارفع البيانات الحالية للسحابة
+      ready=true; push();
+    }else{
+      fromSnap('emp',e); fromSnap('att',a);
+      s.docs.forEach(d=>{if(d.id==='settings'){D.set=Object.assign({hrs:8,ded:0},d.data());synced.set=sk(D.set)}});
+      ready=true;
+      try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}
+    }
+    go(tab);
+    onSnapshot(collection(db,'emp'),sn=>{fromSnap('emp',sn);refresh()});
+    onSnapshot(collection(db,'att'),sn=>{fromSnap('att',sn);refresh()});
+    onSnapshot(doc(db,'meta','settings'),d=>{if(d.exists()){D.set=Object.assign({hrs:8,ded:0},d.data());synced.set=sk(D.set);refresh()}});
+  }catch(err){
+    console.error(err);
+    toast('تعذر الاتصال بـ Firebase - البيانات محلية فقط');
+  }
+})();
 </script>
 </body>
 </html>
