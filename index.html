@@ -128,6 +128,7 @@ const firebaseConfig = {
 };
 // ===========================================================
 
+function st_(m,k){var d=document.getElementById('fbst');if(!d){d=document.createElement('div');d.id='fbst';d.style.cssText='position:fixed;bottom:0;right:0;left:0;padding:8px 14px;font-size:13px;z-index:98;text-align:center;direction:rtl';document.body.appendChild(d)}d.textContent=m;d.style.background=k=='ok'?'#16895e':'#c0392b';d.style.color='#fff';if(k=='ok')setTimeout(function(){d.remove()},3000)}
 const db = getFirestore(initializeApp(firebaseConfig));
 const synced = {emp:{}, att:{}, set:''};
 let ready = false;
@@ -157,7 +158,7 @@ function push(){
   });
   const st=sk(D.set);
   if(st!==synced.set){b.set(doc(db,'meta','settings'),D.set);synced.set=st;n++}
-  if(n) b.commit().catch(e=>{console.error(e);toast('تعذر الحفظ على السيرفر')});
+  if(n) b.commit().then(()=>st_('متصل بالسيرفر ✓ تم الحفظ','ok')).catch(e=>{console.error(e);st_('فشل الحفظ: '+(e.code||'')+' '+(e.message||e),'bad')});
 }
 window.cloudSave = () => { if(ready) push(); };
 
@@ -178,13 +179,14 @@ function fromSnap(c, snap){
       ready=true;
       try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}
     }
+    st_('متصل بقاعدة البيانات ✓','ok');
     go(tab);
     onSnapshot(collection(db,'emp'),sn=>{fromSnap('emp',sn);refresh()});
     onSnapshot(collection(db,'att'),sn=>{fromSnap('att',sn);refresh()});
     onSnapshot(doc(db,'meta','settings'),d=>{if(d.exists()){D.set=Object.assign({hrs:8,ded:0},d.data());synced.set=sk(D.set);refresh()}});
   }catch(err){
     console.error(err);
-    toast('تعذر الاتصال بـ Firebase - البيانات محلية فقط');
+    st_('فشل الاتصال: '+(err.code||'')+' '+(err.message||err),'bad');
   }
 })();
 </script>
