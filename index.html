@@ -73,7 +73,7 @@ function rt(){var d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()
 function seed(){var n=['مبيعات 1','مبيعات 2','مبيعات 3','مبيعات 4','مصمم 1','مصمم 2','مصمم 3','مصمم 4','مصمم 5','المونتير'];return{emp:n.map(function(x,i){return{id:'e'+i,n:x,sal:i<4?8000:i<9?9000:10000}}),att:[],set:{hrs:8,ded:0}}}
 try{D=JSON.parse(localStorage.getItem(KEY))}catch(x){}
 if(!D||!D.emp){D=seed();try{var o=JSON.parse(localStorage.getItem('erp_mkt_v2'));if(o&&o.emp&&o.emp.length){D.emp=o.emp.map(function(e){return{id:e.id,n:e.n,sal:e.sal}});D.att=o.att||[]}}catch(x){}}
-D.att=D.att||[];D.set=D.set||{};D.set.hrs=D.set.hrs||8;D.set.ded=D.set.ded||0;
+D.att=D.att||[];D.set=D.set||{};D.set.hrs=D.set.hrs||8;D.set.ded=D.set.ded||0;if(D.set.lv===undefined)D.set.lv=1;if(D.set.un===undefined)D.set.un=1;D.set.hol=D.set.hol||'';
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}if(window.cloudSave)window.cloudSave()}
 function $(i){return document.getElementById(i)}
 function f(n){return Math.round(n).toLocaleString('en-US')}
@@ -100,7 +100,18 @@ function dfm(a){var w=wm(a);return w===null?0:Math.max(0,req()-w)}
 function rate(e){return e.sal/30/D.set.hrs}
 function hm(m){m=Math.round(m);return Math.floor(m/60)+':'+('0'+m%60).slice(-2)}
 function tm(m){m=((m%1440)+1440)%1440;return('0'+Math.floor(m/60)).slice(-2)+':'+('0'+m%60).slice(-2)}
-function attSum(e){var s={days:0,w:0,ot:0,df:0,c:0,a:0,u:0,ud:0};D.att.forEach(function(a){if(a.e!=e.id||!inM(a.d))return;if(a.ab){s[a.ab]++;if(a.ab=='u')s.ud+=+a.dd||0;return}s.days++;s.w+=wm(a)||0;s.ot+=otm(a);s.df+=dfm(a)});var n=s.ot-s.df;s.net=n;s.pm=n>0?n*2:0;s.op=s.pm/60*rate(e);s.dc=n<0?-n/60*rate(e):0;s.ac=s.ud*e.sal/30;s.tot=e.sal+s.op-s.dc-s.ac;return s}
+function isFri(d){return new Date(d+'T12:00:00Z').getUTCDay()===5}
+function mDays(){var y=+M.slice(0,4),m=+M.slice(5,7),n=new Date(y,m,0).getDate(),r=[];for(var i=1;i<=n;i++)r.push(M+'-'+('0'+i).slice(-2));return r}
+function dedList(e){var out=[],rc={},t=rt(),sd=e.sd||'',fd='',hol={};
+D.att.forEach(function(a){if(!fd||a.d<fd)fd=a.d;if(a.e==e.id&&inM(a.d))(rc[a.d]=rc[a.d]||[]).push(a)});
+String(D.set.hol||'').split(/[\s,،;]+/).forEach(function(x){if(x)hol[x]=1});
+mDays().forEach(function(d){if(isFri(d)||hol[d])return;
+if(sd&&d<sd){out.push({d:d,k:'p',w:'قبل تاريخ بدء العمل',n:1});return}
+var r=rc[d];
+if(r){r.forEach(function(a){if(a.ab=='u')out.push({d:d,k:'u',w:'إجازة مخصومة من المرتب',n:+a.dd||1});else if(a.ab&&D.set.lv)out.push({d:d,k:'l',w:'إجازة '+AB[a.ab],n:1})});return}
+if(D.set.un&&fd&&d>=fd&&d<t)out.push({d:d,k:'n',w:'غياب بدون تسجيل',n:1})});
+return out}
+function attSum(e){var s={days:0,w:0,ot:0,df:0,c:0,a:0,u:0,ud:0};D.att.forEach(function(a){if(a.e!=e.id||!inM(a.d))return;if(a.ab){s[a.ab]++;return}s.days++;s.w+=wm(a)||0;s.ot+=otm(a);s.df+=dfm(a)});var n=s.ot-s.df;s.net=n;s.pm=n>0?n*2:0;s.op=s.pm/60*rate(e);s.dc=n<0?-n/60*rate(e):0;s.dl=dedList(e);s.ps=s.lv=s.un=s.ud=0;s.dl.forEach(function(x){if(x.k=='p')s.ps+=x.n;else if(x.k=='l')s.lv+=x.n;else if(x.k=='u')s.ud+=x.n;else s.un+=x.n});s.dd=s.ps+s.lv+s.ud+s.un;s.ac=Math.min(e.sal,s.dd*e.sal/30);s.tot=e.sal+s.op-s.dc-s.ac;return s}
 function mdl(id,h){if($(id))return null;var d=document.createElement('div');d.id=id;d.className='ov';d.innerHTML='<div class="box md">'+h+'</div>';document.body.appendChild(d);return d}
 function cf(m,fn){var d=mdl('cfm','<p style="margin:0 0 12px">'+m+'</p><button class="b" id="cy">تأكيد</button> <button class="g" id="cn">إلغاء</button>');if(!d)return;d.querySelector('#cn').onclick=function(){d.remove()};d.querySelector('#cy').onclick=function(){d.remove();fn()}}
 function toast(m){var d=document.createElement('div');d.className='ts';d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},2600)}
@@ -116,8 +127,8 @@ function saveAtt(){if(!ADM){lg();return false}var r=cur('att'),t=$('f_t').value,
 if(t){o.ab=t;o.dd=t=='u'?(+$('f_dd').value||1):0;o.i='';o.o=''}else{o.i=$('f_i').value;o.o=$('f_o').value;if(!o.i){toast('اكتب وقت الحضور');return false}}
 if(r){if(t){delete r.br;delete r.dv;delete r.dvid;delete r.dvo}else{delete r.ab;delete r.dd}}
 fin('att',r,o);return false}
-function eform(){var r=cur('emp');return box('<b>'+(r?'تعديل الموظف':'إضافة موظف')+'</b><form onsubmit="return saveEmp()"><label>الاسم<input id="f_n" required value="'+esc(r&&r.n)+'"></label><label>المرتب الشهري<input id="f_sal" type="number" step="any" required value="'+esc(r&&r.sal)+'"></label><label>الكود السري (4 أرقام) - اتركه فارغاً لعدم التغيير<input id="f_pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off"></label><button class="b">'+(r?'حفظ التعديل':'إضافة')+'</button>'+(r?'<button type="button" class="g" onclick="cancel()">إلغاء</button>':'')+'</form>')}
-function saveEmp(){if(!ADM){lg();return false}var r=cur('emp'),o={n:$('f_n').value,sal:+$('f_sal').value},pn=$('f_pin').value.trim();
+function eform(){var r=cur('emp');return box('<b>'+(r?'تعديل الموظف':'إضافة موظف')+'</b><form onsubmit="return saveEmp()"><label>الاسم<input id="f_n" required value="'+esc(r&&r.n)+'"></label><label>المرتب الشهري<input id="f_sal" type="number" step="any" required value="'+esc(r&&r.sal)+'"></label><label>تاريخ بدء العمل (اختياري)<input id="f_sd" type="date" value="'+esc(r&&r.sd)+'"></label><label>الكود السري (4 أرقام) - اتركه فارغاً لعدم التغيير<input id="f_pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off"></label><button class="b">'+(r?'حفظ التعديل':'إضافة')+'</button>'+(r?'<button type="button" class="g" onclick="cancel()">إلغاء</button>':'')+'</form>')}
+function saveEmp(){if(!ADM){lg();return false}var r=cur('emp'),o={n:$('f_n').value,sal:+$('f_sal').value,sd:$('f_sd').value},pn=$('f_pin').value.trim();
 if(!r&&!pn){toast('اكتب كود سري من 4 أرقام للموظف');return false}
 if(pn&&!/^\d{4}$/.test(pn)){toast('الكود لازم يكون 4 أرقام');return false}
 if(pn){if(!window.crypto||!crypto.subtle){toast('افتح الصفحة عبر رابط https');return false}sha('pin:'+pn).then(function(h){if(D.emp.some(function(x){return x.ph==h&&(!r||x.id!=r.id)})){toast('هذا الكود مستخدم لموظف آخر، اختر كوداً مختلفاً');return}o.ph=h;fin('emp',r,o)})}else fin('emp',r,o);return false}
@@ -170,15 +181,20 @@ log:function(){var DM=devMap(),r=byD(D.att.filter(function(a){return inM(a.d)&&(
 sheet:function(){var e=emp(SE)||D.emp[0];if(!e)return box('لا يوجد موظفون.');SE=e.id;
 var rs=D.att.filter(function(a){return a.e==e.id&&inM(a.d)}).sort(function(x,y){return x.d<y.d?-1:1}),s=attSum(e),at=rs.filter(function(a){return!a.ab}),ab=rs.filter(function(a){return a.ab}),dt=function(a){return a.d+' ('+wd(a.d)+')'},wt=function(a){var w=wm(a);return w===null?'-':hm(w)};
 return admBar()+box('<label style="max-width:260px">الموظف<select onchange="SE=this.value;go(\'sheet\',1)">'+D.emp.map(function(x){return'<option value="'+x.id+'"'+(x.id==e.id?' selected':'')+'>'+x.n+'</option>'}).join('')+'</select></label>')
-+kp([['أيام الحضور',s.days],['ساعات العمل',hm(s.w)],['إجمالي الأوفر (د)',s.ot],['إجمالي العجز (د)',s.df],['صافي الدقائق',(s.net>0?'+':'')+s.net],['عارضة / اعتيادية / مخصومة',s.c+' / '+s.a+' / '+s.u]])
++kp([['أيام الحضور',s.days],['ساعات العمل',hm(s.w)],['إجمالي الأوفر (د)',s.ot],['إجمالي العجز (د)',s.df],['صافي الدقائق',(s.net>0?'+':'')+s.net],['عارضة / اعتيادية / مخصومة',s.c+' / '+s.a+' / '+s.u],['أيام الخصم من المرتب',s.dd]])
 +'<h2>سجل الحضور والانصراف</h2>'+box(table(['التاريخ','حضور','انصراف','استراحة (د)','ساعات العمل','أوفر (د)','عجز (د)'],at.map(function(a){return tr([dt(a),a.i,a.o||'-',brM(a)||'-',wt(a),otm(a)?'<b class="ok">'+otm(a)+'</b>':'-',dfm(a)?'<b class="no">'+dfm(a)+'</b>':'-'])})))
 +'<h2>جدول العجز</h2>'+box(table(['التاريخ','حضور','انصراف','ساعات العمل','عجز (د)'],at.filter(dfm).map(function(a){return tr([dt(a),a.i,a.o,wt(a),'<b class="no">'+dfm(a)+'</b>'])}).concat(s.df?[tr(['<b>الإجمالي</b>','','','','<b class="no">'+s.df+' د</b>'])]:[])))
 +'<h2>جدول الأوفر تايم</h2>'+box(table(['التاريخ','حضور','انصراف','ساعات العمل','أوفر (د)'],at.filter(otm).map(function(a){return tr([dt(a),a.i,a.o,wt(a),'<b class="ok">'+otm(a)+'</b>'])}).concat(s.ot?[tr(['<b>الإجمالي</b>','','','','<b class="ok">'+s.ot+' د</b>'])]:[])))
 +'<h2>الإجازات والغياب</h2>'+box(table(['التاريخ','النوع','أيام الخصم'],ab.map(function(a){return tr([dt(a),a.ab=='u'?'إجازة مخصومة من المرتب':'إجازة '+AB[a.ab],a.ab=='u'?(+a.dd||1):0])})))
-+'<h2>حساب الشهر</h2>'+box('<p style="margin:0">الأوفر '+s.ot+' د − العجز '+s.df+' د = <b>'+(s.net>0?'+':'')+s.net+' د</b></p><p class="n" style="font-size:14px">'+(s.net>0?'الصافي موجب ← يُضرب ×2 = '+s.pm+' د = <b class="ok">+'+f(s.op)+'</b>':s.net<0?'العجز أكبر ← بدون ضرب، يُخصم فقط <b class="no">-'+f(s.dc)+'</b>':'لا أوفر ولا عجز')+'</p><p class="n" style="font-size:14px">خصم أيام الغياب ('+s.ud+' يوم): <b class="no">-'+f(s.ac)+'</b></p><p style="margin:8px 0 0">المرتب الأساسي '+f(e.sal)+' ← الصافي التقديري <b class="ok">'+f(s.tot)+'</b></p>')+'<button class="b" onclick="window.print()">طباعة الكشف</button>'},
-sum:function(){return admBar()+box(table(['الموظف','أيام الحضور','أوفر (د)','عجز (د)','الصافي (د)','محسوب ×2 (د)','قيمة الأوفر','خصم العجز','عارضة','اعتيادية','مخصومة (أيام)','خصم الغياب','المرتب','الصافي التقديري'],D.emp.map(function(e){var t=attSum(e);return tr([e.n,t.days,t.ot?'<span class="ok">'+t.ot+'</span>':0,t.df?'<span class="no">'+t.df+'</span>':0,t.net>0?'<b class="ok">+'+t.net+'</b>':t.net<0?'<b class="no">'+t.net+'</b>':0,t.pm||0,t.op?'<b class="ok">+'+f(t.op)+'</b>':0,t.dc?'<b class="no">-'+f(t.dc)+'</b>':0,t.c,t.a,t.ud,t.ac?'<b class="no">-'+f(t.ac)+'</b>':0,f(e.sal),'<b>'+f(t.tot)+'</b>'])})))+'<p class="n">الصافي = إجمالي الأوفر − إجمالي العجز (بالدقائق). لو موجب يُضرب ×2 ويُضاف أجره، ولو سالب يُخصم قيمة العجز فقط بدون ضرب. أجر الساعة = المرتب ÷ 30 ÷ '+D.set.hrs+'، ويوم الخصم = المرتب ÷ 30.</p><button class="b" onclick="window.print()">طباعة الملخص</button>'},
-emp:function(){return admBar()+eform()+box(table(['الموظف','المرتب','أجر الساعة','الكود السري',''],D.emp.map(function(e){return tr([e.n,f(e.sal),rate(e).toFixed(2),e.ph?'<span class="ok">مُعيّن</span>':'<span class="no">غير مُعيّن</span>',act('emp',e.id)])})))+'<h2>الإعدادات</h2>'+box('<form onsubmit="return setS()"><label>ساعات العمل المطلوبة يوميًا<input id="t1" type="number" step="any" min="1" value="'+D.set.hrs+'"></label><button class="b">حفظ</button></form>')}};
-function setS(){if(!ADM){lg();return false}D.set.hrs=+$('t1').value||8;save();go('emp');return false}
++'<h2>أيام الخصم من المرتب</h2>'+box(table(['التاريخ','السبب','أيام'],s.dl.map(function(x){return tr([dt(x),x.w,x.n])}).concat(s.dd?[tr(['<b>الإجمالي</b>','','<b class="no">'+s.dd+' يوم</b>'])]:[])))+'<h2>حساب الشهر</h2>'+box('<p style="margin:0">الأوفر '+s.ot+' د − العجز '+s.df+' د = <b>'+(s.net>0?'+':'')+s.net+' د</b></p><p class="n" style="font-size:14px">'+(s.net>0?'الصافي موجب ← يُضرب ×2 = '+s.pm+' د = <b class="ok">+'+f(s.op)+'</b>':s.net<0?'العجز أكبر ← بدون ضرب، يُخصم فقط <b class="no">-'+f(s.dc)+'</b>':'لا أوفر ولا عجز')+'</p><p class="n" style="font-size:14px">خصم أيام الغياب والإجازات ('+s.dd+' يوم × '+f(e.sal/30)+'): <b class="no">-'+f(s.ac)+'</b></p><p style="margin:8px 0 0">المرتب الأساسي '+f(e.sal)+' ← الصافي التقديري <b class="ok">'+f(s.tot)+'</b></p>')+'<button class="b" onclick="window.print()">طباعة الكشف</button>'},
+sum:function(){return admBar()+box(table(['الموظف','أيام الحضور','أوفر (د)','عجز (د)','الصافي (د)','محسوب ×2 (د)','قيمة الأوفر','خصم العجز','عارضة','اعتيادية','أيام الخصم','خصم الغياب','المرتب','الصافي التقديري'],D.emp.map(function(e){var t=attSum(e);return tr([e.n,t.days,t.ot?'<span class="ok">'+t.ot+'</span>':0,t.df?'<span class="no">'+t.df+'</span>':0,t.net>0?'<b class="ok">+'+t.net+'</b>':t.net<0?'<b class="no">'+t.net+'</b>':0,t.pm||0,t.op?'<b class="ok">+'+f(t.op)+'</b>':0,t.dc?'<b class="no">-'+f(t.dc)+'</b>':0,t.c,t.a,t.dd,t.ac?'<b class="no">-'+f(t.ac)+'</b>':0,f(e.sal),'<b>'+f(t.tot)+'</b>'])})))+'<p class="n">الصافي = إجمالي الأوفر − إجمالي العجز (بالدقائق). لو موجب يُضرب ×2 ويُضاف أجره، ولو سالب يُخصم قيمة العجز فقط بدون ضرب. أجر الساعة = المرتب ÷ 30 ÷ '+D.set.hrs+'، ويوم الخصم = المرتب ÷ 30 (الجمعة لا تُخصم). الخصم يشمل: الأيام قبل تاريخ بدء العمل، والإجازات، والأيام بدون تسجيل.</p><button class="b" onclick="window.print()">طباعة الملخص</button>'},
+emp:function(){return admBar()+eform()+box(table(['الموظف','المرتب','بدء العمل','أجر الساعة','الكود السري',''],D.emp.map(function(e){return tr([e.n,f(e.sal),e.sd||'-',rate(e).toFixed(2),e.ph?'<span class="ok">مُعيّن</span>':'<span class="no">غير مُعيّن</span>',act('emp',e.id)])})))+'<h2>الإعدادات</h2>'+box('<form onsubmit="return setS()"><label>ساعات العمل المطلوبة يوميًا<input id="t1" type="number" step="any" min="1" value="'+D.set.hrs+'"></label><label style="flex-direction:row;align-items:center;gap:6px"><input id="t2" type="checkbox"'+(D.set.lv?' checked':'')+'>خصم يوم من المرتب عن الإجازة العارضة والاعتيادية</label><label style="flex-direction:row;align-items:center;gap:6px"><input id="t3" type="checkbox"'+(D.set.un?' checked':'')+'>الأيام بدون تسجيل تُعتبر غياب وتُخصم</label><label>إجازات رسمية لا تُخصم (تواريخ بفاصلة، مثال 2026-11-05)<input id="t4" style="min-width:280px" value="'+esc(D.set.hol)+'"></label><button class="b">حفظ</button></form><p class="n">الجمعة لا تُخصم أبدًا. أي يوم قبل تاريخ بدء الموظف يُخصم تلقائيًا (ما عدا الجمعة). المرتب ثابت ويقل بمقدار (المرتب ÷ 30) عن كل يوم خصم.</p>')+'<h2>النسخ الاحتياطي</h2>'+box('<p class="n" style="margin:0 0 8px">تصدير كل بيانات الشيت (الموظفين، الحضور، الإعدادات) في ملف واحد يُفتح على الكمبيوتر، واسترجاعها كاملة منه. احتفظ بالملف في مكان آمن لأنه يحتوي بيانات المرتبات.</p><button class="b" onclick="bkExport()">تصدير كل البيانات</button> <button class="g" onclick="$(\'bkf\').click()">استرجاع من ملف</button><input type="file" id="bkf" accept=".json,application/json" style="display:none" onchange="bkImport(this)">')}};
+function bkExport(tag){var t=new Date(),o={app:'digigo-attendance',ver:1,exported:t.toISOString(),emp:D.emp,att:D.att,set:D.set},b=new Blob([JSON.stringify(o,null,1)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='digigo-backup-'+(tag?tag+'-':'')+rt()+'-'+('0'+t.getHours()).slice(-2)+('0'+t.getMinutes()).slice(-2)+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500);if(!tag)toast('تم تصدير '+D.emp.length+' موظف و '+D.att.length+' سجل')}
+function bkImport(inp){if(!ADM){lg();return}var fl=inp.files&&inp.files[0];inp.value='';if(!fl)return;var rd=new FileReader();rd.onerror=function(){toast('تعذر قراءة الملف')};rd.onload=function(){var o;try{o=JSON.parse(rd.result)}catch(x){toast('الملف غير صالح');return}
+var ok=o&&Array.isArray(o.emp)&&Array.isArray(o.att)&&o.emp.length&&[].concat(o.emp,o.att).every(function(x){return x&&typeof x.id=='string'&&x.id&&x.id.indexOf('/')<0});
+if(!ok){toast('الملف ليس نسخة احتياطية صحيحة');return}
+cf('سيتم استبدال كل البيانات الحالية ('+D.emp.length+' موظف، '+D.att.length+' سجل) ببيانات الملف ('+o.emp.length+' موظف، '+o.att.length+' سجل) وحفظها في قاعدة البيانات. سيتم تنزيل نسخة من البيانات الحالية تلقائيًا قبل الاستبدال. متأكد؟',function(){bkExport('before-restore');D.emp=o.emp;D.att=o.att;D.set=Object.assign({hrs:8,ded:0,lv:1,un:1,hol:''},o.set||{});ED=null;save();go('emp',1);toast('تم استرجاع البيانات')})};rd.readAsText(fl)}
+function setS(){if(!ADM){lg();return false}D.set.hrs=+$('t1').value||8;D.set.lv=$('t2').checked?1:0;D.set.un=$('t3').checked?1:0;D.set.hol=$('t4').value.trim();save();go('emp');return false}
 function nv(t){ED=null;go(t,1)}
 function TABS(){return ADM?PUB.concat(ADT):PUB}
 function go(t,an){if(!ADM&&ADT.some(function(x){return x[0]==t}))t='punch';tab=t;$('nav').innerHTML=TABS().map(function(x){return'<button class="'+(x[0]==t?'on':'')+'" onclick="nv(\''+x[0]+'\')">'+x[1]+'</button>'}).join('');var b=$('ab');b.textContent=ADM?'تسجيل خروج المسؤول':'دخول المسؤول';b.onclick=ADM?lo:lg;var a=$('app');a.className=an?'anim':'';a.innerHTML=V[t]();if($('f_t'))tt()}
@@ -217,20 +233,24 @@ function refresh(){
   go(tab);
 }
 function push(){
-  const b=writeBatch(db); let n=0;
+  const ops=[];
   ['emp','att'].forEach(c=>{
     const cur={};
     D[c].forEach(x=>{cur[x.id]=sk(x)});
     Object.keys(cur).forEach(id=>{
-      if(synced[c][id]!==cur[id]){b.set(doc(db,c,id),JSON.parse(cur[id]));synced[c][id]=cur[id];n++}
+      if(synced[c][id]!==cur[id]){const v=JSON.parse(cur[id]);ops.push(b=>b.set(doc(db,c,id),v));synced[c][id]=cur[id]}
     });
     Object.keys(synced[c]).forEach(id=>{
-      if(!(id in cur)){b.delete(doc(db,c,id));delete synced[c][id];n++}
+      if(!(id in cur)){ops.push(b=>b.delete(doc(db,c,id)));delete synced[c][id]}
     });
   });
   const st=sk(D.set);
-  if(st!==synced.set){b.set(doc(db,'meta','settings'),D.set);synced.set=st;n++}
-  if(n) b.commit().then(()=>st_('متصل بالسيرفر ✓ تم الحفظ','ok')).catch(e=>{console.error(e);st_('فشل الحفظ: '+(e.code||'')+' '+(e.message||e),'bad')});
+  if(st!==synced.set){const v=JSON.parse(st);ops.push(b=>b.set(doc(db,'meta','settings'),v));synced.set=st}
+  if(!ops.length) return;
+  const chunks=[];for(let i=0;i<ops.length;i+=400)chunks.push(ops.slice(i,i+400));
+  Promise.all(chunks.map(ch=>{const b=writeBatch(db);ch.forEach(f=>f(b));return b.commit()}))
+    .then(()=>st_('متصل بالسيرفر ✓ تم الحفظ','ok'))
+    .catch(e=>{console.error(e);st_('فشل الحفظ: '+(e.code||'')+' '+(e.message||e),'bad')});
 }
 window.cloudSave = () => { if(ready) push(); };
 
@@ -247,7 +267,7 @@ function fromSnap(c, snap){
       ready=true; push();
     }else{
       fromSnap('emp',e); fromSnap('att',a);
-      s.docs.forEach(d=>{if(d.id==='settings'){D.set=Object.assign({hrs:8,ded:0},d.data());synced.set=sk(D.set)}});
+      s.docs.forEach(d=>{if(d.id==='settings'){D.set=Object.assign({hrs:8,ded:0,lv:1,un:1,hol:''},d.data());synced.set=sk(D.set)}});
       ready=true;
       try{localStorage.setItem(KEY,JSON.stringify(D))}catch(x){}
     }
@@ -255,7 +275,7 @@ function fromSnap(c, snap){
     go(tab);
     onSnapshot(collection(db,'emp'),sn=>{fromSnap('emp',sn);refresh()});
     onSnapshot(collection(db,'att'),sn=>{fromSnap('att',sn);refresh()});
-    onSnapshot(doc(db,'meta','settings'),d=>{if(d.exists()){D.set=Object.assign({hrs:8,ded:0},d.data());synced.set=sk(D.set);refresh()}});
+    onSnapshot(doc(db,'meta','settings'),d=>{if(d.exists()){D.set=Object.assign({hrs:8,ded:0,lv:1,un:1,hol:''},d.data());synced.set=sk(D.set);refresh()}});
   }catch(err){
     console.error(err);
     st_('فشل الاتصال: '+(err.code||'')+' '+(err.message||err),'bad');
