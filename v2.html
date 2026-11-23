@@ -444,7 +444,8 @@ var RFT=0;
 function refresh(force){clearTimeout(RFT);RFT=setTimeout(function(){if(!U){showLogin();return}
  var a=document.activeElement,typing=a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)&&$('app').contains(a);
  if(page=='chat'&&!force){chatThread();$('snav').innerHTML=navHtml();return}
- if(!force&&(ED||typing)){$('snav').innerHTML=navHtml();return}render()},force?0:80)}
+ if(ED||typing){RPEND=1;$('snav').innerHTML=navHtml();return}RPEND=0;render()},force?0:80)}
+var RPEND=0;
 function nv(p){ED=null;page=p;closeSide();render(1);scrollTo(0,0)}
 function openSide(){$('side').classList.add('open');$('scrim').classList.add('open')}
 function closeSide(){$('side').classList.remove('open');$('scrim').classList.remove('open')}
@@ -726,9 +727,16 @@ function mapSnap(obj,snap,kind,first){var me=U&&U.id;snap.docChanges().forEach(f
   if(kind=='tasks'&&ch.type=='added'&&v.to==me)notify('📌 تاسك جديدة ليك',v.t);
   if(kind=='tasks'&&ch.type=='modified'&&old){if(v.to==me&&old.to!=me)notify('📌 اتحولتلك تاسك',v.t);else if(v.to==me&&v.chg&&v.chg.u!=me&&(!old.chg||old.chg.at!=v.chg.at))notify('🔔 '+en(v.chg.u)+' عدّلت في تاسكك',v.t+' — '+v.chg.a);if(canMan()&&v.st=='rev'&&old.st!='rev')notify('🔔 تاسك مستنية مراجعة',v.t+' — '+en(v.to))}
   if(kind=='msgs'&&ch.type=='added'&&v.f!=me&&!(page=='chat'&&CH==peerOf(v)&&!document.hidden))notify('💬 '+en(v.f),v.x.slice(0,80))})}
-function listenMap(q,obj,kind){var first=true;return function(s){mapSnap(obj,s,kind,first);first=false;refresh()}}
-function startData(){stopData();if(DEMO){render(1);return}
- var F=FB,me=U.id,adm=isAdm(),sal=isSales(),L=function(q,fn){UNS.push(F.onSnapshot(q,fn,function(e){console.error(e);setConn('bad','مفيش صلاحية / مشكلة اتصال')}))},col=function(c){return F.collection(db,c)};
+function listenMap(q,obj,kind){var first=true;return function(s){if(first&&kind=='tasks'){Object.keys(obj).forEach(function(k){delete obj[k]})}mapSnap(obj,s,kind,first);first=false;LAST=Date.now();refresh()}}
+var RST=0,LAST=0;
+function restartData(){clearTimeout(RST);RST=setTimeout(function(){if(U&&!DEMO){setConn('','بيعيد الاتصال…');startData(1)}},3000)}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&U)refresh()});
+window.addEventListener('focus',function(){if(U)refresh()});
+window.addEventListener('online',function(){if(U&&!DEMO)restartData()});
+document.addEventListener('focusout',function(){if(RPEND&&U)setTimeout(function(){refresh()},250)});
+setInterval(function(){if(U&&!document.hidden&&page!='chat')refresh()},30000);
+function startData(keep){stopData();if(DEMO){render(1);return}
+ var F=FB,me=U.id,adm=isAdm(),sal=isSales(),L=function(q,fn){UNS.push(F.onSnapshot(q,fn,function(e){console.error(e);setConn('bad','انقطع الاتصال — بيعيد المحاولة…');restartData()}))},col=function(c){return F.collection(db,c)};
  L(F.doc(db,'meta','settings'),function(d){if(d.exists()){D.set=normSet(d.data());synced.set=sk(D.set);refresh()}});
  if(adm){L(col('emp'),function(s){fromSnap('emp',s);syncAllPub();refresh()})}else{L(F.doc(db,'emp',me),function(d){D.emp=d.exists()?[Object.assign({id:d.id},d.data())]:[];synced.emp={};refresh()})}
  L(adm||sal?col('att'):F.query(col('att'),F.where('e','==',me)),function(s){fromSnap('att',s);refresh()});
@@ -737,7 +745,7 @@ function startData(){stopData();if(DEMO){render(1);return}
  mq.forEach(function(q){L(q,listenMap(q,MS,'msgs'))});
  L(col('banners'),function(s){BN={};s.docs.forEach(function(d){BN[d.id]=Object.assign({id:d.id},d.data())});refresh()});
  L(F.doc(db,'cfg','ai'),function(d){CFG=d.exists()?d.data():{};});
- setConn('ok','متصل بقاعدة البيانات ✓');page='home';render(1)}
+ setConn('ok','متصل بقاعدة البيانات ✓');if(!keep)page='home';render(1)}
 
 function onAuth(user){if(!user){U=null;stopData();showLogin();return}
  var em=String(user.email||'').toLowerCase(),loc=em.split('@')[0];if(em.slice(-MAILD.length)!==MAILD){FB.signOut(auth);return}
