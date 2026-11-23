@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دليل ديجيجو</title>
+<link rel="icon" type="image/png" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4fb;--sf:#fff;--tx:#1d1533;--mu:#6e6787;--bd:#e9e3f5;--pr:#6d28d9;--pr2:#8b5cf6;--prs:rgba(109,40,217,.08)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Cairo,Tahoma,sans-serif;background:var(--bg);color:var(--tx);line-height:1.85;font-size:15px}
+.hero{background:linear-gradient(120deg,#4c1d95,#7c3aed 55%,#c084fc);color:#fff;padding:42px 20px 60px;text-align:center}
+.hero img{width:72px;height:72px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.hero h1{margin:12px 0 4px;font-size:30px;font-weight:900}.hero p{margin:0;opacity:.92}
+main{max-width:920px;margin:-36px auto 40px;padding:0 16px}
+nav.toc{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:14px 18px;box-shadow:0 10px 30px rgba(30,15,60,.07);display:flex;flex-wrap:wrap;gap:8px}
+nav.toc a{text-decoration:none;color:var(--pr);background:var(--prs);padding:4px 12px;border-radius:99px;font-weight:700;font-size:13px}
+section{background:var(--sf);border:1px solid var(--bd);border-radius:18px;padding:20px 22px;margin-top:16px;box-shadow:0 1px 2px rgba(30,15,60,.04)}
+h2{margin:0 0 10px;font-size:20px;color:var(--pr);display:flex;align-items:center;gap:10px}
+h3{margin:16px 0 6px;font-size:16px}
+ol,ul{padding-inline-start:22px;margin:6px 0}li{margin:3px 0}
+.k{display:inline-block;background:var(--prs);color:var(--pr);border-radius:8px;padding:0 8px;font-weight:700}
+.tip{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:12px;padding:10px 14px;margin:10px 0}
+.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:10px 14px;margin:10px 0}
+.cl{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin:8px 0}
+.cl div{display:flex;align-items:center;gap:8px;border:1px solid var(--bd);border-radius:12px;padding:8px 10px;font-weight:700}
+.cl i{width:14px;height:14px;border-radius:50%;flex:none}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}th,td{border:1px solid var(--bd);padding:7px 10px;text-align:right}th{background:var(--prs);color:var(--pr)}
+.back{display:inline-block;margin-top:14px;background:#fff;color:#5b21b6;text-decoration:none;font-weight:800;padding:8px 18px;border-radius:12px}
+footer{text-align:center;color:var(--mu);font-size:13px;margin:30px 0}
+@media print{.hero{padding:20px}nav.toc,.back{display:none}section{break-inside:avoid;box-shadow:none}}
+</style>
+</head>
+<body>
+<div class="hero">
+ <img src="icon-192.png" alt="">
+ <h1>دليل استخدام ديجيجو</h1>
+ <p>الحضور والانصراف · التاسكات والتايمر · الشات · التقارير · المساعد الذكي</p>
+ <a class="back" href="index.html">← افتح البرنامج</a>
+</div>
+<main>
+<nav class="toc">
+ <a href="#login">الدخول</a><a href="#install">تثبيت البرنامج</a><a href="#colors">معنى الألوان</a><a href="#designer">للمصمم والمونتير</a><a href="#sales">للسيلز</a><a href="#admin">للمدير</a><a href="#waste">الوقت الضايع</a><a href="#ai">المساعد الذكي</a><a href="#chat">الشات</a><a href="#faq">أسئلة شائعة</a>
+</nav>
+
+<section id="login">
+ <h2>🔑 الدخول</h2>
+ <ol>
+  <li>افتح البرنامج، هتلاقي أسماء الفريق متقسمة: السيلز، المصممين، المونتاج.</li>
+  <li>اضغط على اسمك واكتب <b>الكود السري بتاعك (4 أرقام)</b> — نفس الكود اللي كنت بتسجل بيه الحضور.</li>
+  <li>المدير يدخل من زرار <span class="k">دخول المسؤول</span> بكلمة المرور بتاعته.</li>
+ </ol>
+ <div class="warn">🔒 الدخول بيفضل شغال لحد ما تقفل البرنامج/المتصفح. لو الجهاز بيستخدمه أكتر من حد، اضغط <b>تسجيل الخروج</b> (السهم تحت في القايمة الجانبية) قبل ما تقوم.</div>
+ <p>كل واحد بيشوف حاجته بس: المصمم يشوف تاسكاته، والسيلز يشوفوا كل التاسكات، والمدير يشوف كل حاجة ومعاها المرتبات.</p>
+</section>
+
+<section id="install">
+ <h2>💻 تثبيت البرنامج على الجهاز</h2>
+ <p>البرنامج بيتسطب كتطبيق مستقل (أيقونة على سطح المكتب وشريط المهام، وبيفتح في نافذة لوحده من غير شريط المتصفح) — ومش محتاج تحديثات يدوي: أي تعديل بننزله بيوصل لكل الأجهزة لوحده.</p>
+ <ol>
+  <li>افتح رابط البرنامج من <b>Google Chrome</b> أو <b>Microsoft Edge</b>.</li>
+  <li>اضغط زرار <span class="k">تثبيت البرنامج على الجهاز</span> (في شاشة الدخول أو في القايمة الجانبية).<br>أو من قايمة المتصفح ⋮ ← <b>Install ديجيجو</b> / <b>تثبيت التطبيق</b>، أو الأيقونة الصغيرة جنب شريط العنوان.</li>
+  <li>هتلاقي أيقونة <b>ديجيجو</b> على سطح المكتب — افتحه منها على طول بعد كده.</li>
+ </ol>
+ <div class="tip">✔ الأفضل يتسطب على كل أجهزة الكمبيوتر في الشركة. تسجيل الحضور والانصراف شغال من الكمبيوتر بس (زي النظام القديم).</div>
+</section>
+
+<section id="colors">
+ <h2>🎨 معنى الألوان</h2>
+ <h3>حالة التاسك</h3>
+ <div class="cl">
+  <div><i style="background:#ef4444"></i>لم تبدأ</div>
+  <div><i style="background:#3b82f6"></i>قيد التنفيذ (التايمر شغال)</div>
+  <div><i style="background:#f59e0b"></i>هولد</div>
+  <div><i style="background:#8b5cf6"></i>بانتظار مراجعة السيلز</div>
+  <div><i style="background:#db2777"></i>مطلوب تعديل</div>
+  <div><i style="background:#16a34a"></i>اتسلمت</div>
+  <div><i style="background:#b91c1c"></i>مرفوضة</div>
+ </div>
+ <h3>صفحة "الفريق مباشر"</h3>
+ <div class="cl">
+  <div><i style="background:#16a34a"></i>شغال على تاسك دلوقتي</div>
+  <div><i style="background:#64748b"></i>حاضر ومعهوش تاسك شغالة</div>
+  <div><i style="background:#f59e0b"></i>هولد أو استراحة</div>
+  <div><i style="background:#ef4444"></i>مش موجود / انصرف</div>
+ </div>
+</section>
+
+<section id="designer">
+ <h2>🎨 للمصمم والمونتير</h2>
+ <h3>الحضور</h3>
+ <ul>
+  <li><span class="k">تسجيل حضور</span> أول ما توصل — يومك 8 ساعات بتبدأ من لحظة الحضور (زي النظام القديم بالظبط).</li>
+  <li><span class="k">بوز (خروج مؤقت)</span> للصلاة أو الاستراحة، و<span class="k">رجوع</span> لما ترجع. وقت البوز بيتضاف لموعد انصرافك.</li>
+  <li><span class="k">تسجيل انصراف</span> آخر اليوم.</li>
+ </ul>
+ <h3>التاسكات والتايمر</h3>
+ <ol>
+  <li>التاسكات الجديدة بتظهرلك في قايمة <b>"لم تبدأ — التاسكات الجاية عليك"</b> وبيجيلك تنبيه بصوت.</li>
+  <li>اضغط <span class="k">▶ ابدأ</span> — التايمر يشتغل. (لازم تكون مسجّل حضور ومش في استراحة.)</li>
+  <li><span class="k">⏸ هولد</span> لو هتوقف. لو عملت بوز أو انصراف، التاسك الشغالة بتتعمل هولد لوحدها.</li>
+  <li>لما تخلص اضغط <span class="k">✓ خلصت</span> — التاسك بتروح للسيلز للمراجعة وبيوصلها رسالة.</li>
+  <li>لو السيلز رجّعتها للتعديل، هتلاقي السبب مكتوب على الكارت، واضغط <span class="k">ابدأ التعديل</span>.</li>
+ </ol>
+ <h3>لو الوقت المتوقع خلص</h3>
+ <p>هتطلعلك نافذة حمرا بصوت. تقدر:</p>
+ <ul>
+  <li>تطلب <b>+5 / +10 / +15 / +20 دقيقة</b> — السيلز بيوصلها رسالة.</li>
+  <li>تضغط <b>"أنا مكمّل"</b> لو عارف إنك اتأخرت (التنبيه بيقف للتاسك دي).</li>
+  <li>تضغط <b>"كتم الصوت"</b>.</li>
+ </ul>
+ <p>لو السيلز عدّلت في تاسكتك أو وقّفتها، بيجيلك تنبيه وبيظهر شريط أصفر على الكارت — اضغط <b>تمام</b> بعد ما تقراه.</p>
+ <h3>حضوري وتقريري</h3>
+ <p>فيها سجل حضورك في الشهر، الأوفر والعجز، والوقت الضايع اللي اتخصم وسببه.</p>
+</section>
+
+<section id="sales">
+ <h2>💼 للسيلز</h2>
+ <ul>
+  <li><b>تاسك جديدة:</b> زرار <span class="k">+ تاسك جديدة</span>: الاسم، العميل، المسؤول، الوقت المتوقع، 🔥 مستعجلة، ⏰ لازم تخلص النهارده، والتفاصيل.</li>
+  <li><b>أسرع طريقة:</b> اكتب في خانة الذكاء بكلامك العادي، مثلاً: <i>"بوستر عرض الجمعة لأحمد للعميل مطعم الشيف مستعجل ساعة"</i> — المساعد يجهّزها وانتِ تضغطي <b>نفّذ</b>.</li>
+  <li><b>المراجعة:</b> لما المصمم يخلص التاسك بتظهر في "بانتظار المراجعة":
+   <ul>
+    <li><span class="k">✓ اتسلمت</span></li>
+    <li><span class="k">↶ تعديل</span> — واختاري السبب: من العميل / من السيلز / من المدير / ضعف في التصميم.</li>
+    <li><span class="k">⛔ رفض</span> — مع السبب.</li>
+   </ul>
+  </li>
+  <li><b>تحويل التاسك</b> من مصمم لمصمم بزرار ⇄ (الوقت اللي اتصرف بيفضل محسوب لصاحبه).</li>
+  <li><b>إيقاف</b> أي تاسك شغالة في أي وقت — بتبقى هولد والمصمم بيوصله تنبيه.</li>
+  <li>أي تعديل على تاسك المصمم بيوصله تنبيه لحظي.</li>
+  <li>كل السيلز يشوفوا تاسكات بعض ويقدروا يعدلوا عليها.</li>
+  <li>الرئيسية فيها <b>الوقت الضايع النهارده</b> لكل مصمم، وصفحة التقارير فيها التقرير اليومي.</li>
+ </ul>
+</section>
+
+<section id="admin">
+ <h2>👑 للمدير</h2>
+ <ul>
+  <li><b>لوحة التحكم:</b> مين حاضر، مين شغال على إيه، المتأخر، اللي مستني مراجعة، والوقت الضايع النهارده والشهر.</li>
+  <li><b>الفريق مباشر:</b> كل واحد ولونه وتايمره لحظة بلحظة.</li>
+  <li><b>التقارير:</b> يومي وشهري — ساعات الحضور مقابل وقت التاسكات (نسبة الإنتاجية)، اللي اتسلم، التعديلات وأسبابها، المرفوض، الوقت الضايع يوم بيوم، وترتيب 🏆 أكتر حد سلّم تاسكات. وفيه تصدير Excel و"ملخص بالذكاء".</li>
+  <li><b>الحضور والمرتبات:</b> نفس صفحات النظام القديم (السجل اليومي، الشهري، كشف الموظف، ملخص المرتبات، الموظفون) بنفس الحسابات.</li>
+  <li><b>PDF الشهر لكل موظف:</b> من "كشف الموظف" أو جنب اسمه في "ملخص المرتبات" ← في نافذة الطباعة اختار <b>Save as PDF</b> وابعته للموظف. فيه الحضور يوم بيوم، الخصومات، الأوفر، الوقت الضايع، التاسكات المسلّمة والمرفوضة، وحساب المرتب.</li>
+  <li><b>الإعدادات والبنرات:</b> ساعات العمل، الإجازات الرسمية، البنرات اللي بتظهر للفريق، مفتاح Gemini، تغيير كلمة مرور المسؤول، والنسخ الاحتياطي.</li>
+  <li><b>الموظفون:</b> إضافة/تعديل موظف، الدور (سيلز/مصمم/مونتير)، المرتب، والكود السري. تغيير الكود بيقفل الحساب القديم.</li>
+ </ul>
+ <div class="tip">💾 اعمل <b>تصدير كل البيانات</b> من الإعدادات أول كل شهر واحتفظ بالملف في مكان آمن (فيه المرتبات — متبعتوش لحد).</div>
+</section>
+
+<section id="waste">
+ <h2>⏱ الوقت الضايع — بيتحسب إزاي؟</h2>
+ <table>
+  <tr><th>الحالة</th><th>بيتخصم من المصمم؟</th></tr>
+  <tr><td>تعديل من العميل / من السيلز / من المدير</td><td>لا</td></tr>
+  <tr><td>ضعف في التصميم — تعديل بسيط (مش جوهري)</td><td>لا</td></tr>
+  <tr><td>ضعف في التصميم — <b>تعديل جوهري</b></td><td>نعم: وقت التعديل نفسه − فترة السماح</td></tr>
+  <tr><td>رفض بسبب ضعف في التصميم</td><td>نعم: كل الوقت اللي اتصرف على التاسك − فترة السماح</td></tr>
+  <tr><td>رفض لأي سبب تاني</td><td>لا</td></tr>
+ </table>
+ <p>الوقت الضايع بيتخصم من <b>رصيد الدقايق</b>: صافي الدقايق = الأوفر − العجز − الوقت الضايع. وبعد التعديل الجوهري بيظهر للسيلز رسالة مقترحة تبعتها للمصمم توضح السبب.</p>
+</section>
+
+<section id="ai">
+ <h2>✨ المساعد الذكي (Gemini)</h2>
+ <ul>
+  <li>الزرار الملوّن تحت على الشمال.</li>
+  <li><b>السيلز والمدير:</b> اكتب التاسكات بكلامك، اطلب تحويل تاسك ("خلّي تاسك العميل الفلاني لإسراء بدل أحمد")، أو اسأل ("مين فاضي؟"، "إيه المتأخر النهارده؟"). أي أمر بيظهر الأول، ومبيتنفذش غير لما تضغط <b>نفّذ</b>.</li>
+  <li><b>الموظفين:</b> يسألوا عن تاسكاتهم ووقتهم.</li>
+  <li>كل محادثة بتتحفظ، وتلاقي كل المحادثات من زرار القايمة ☰ فوق في المساعد.</li>
+ </ul>
+ <div class="tip">لو ظهرت رسالة إن Gemini عليه ضغط، ده من Google نفسها — استنى دقيقة وجرب تاني.</div>
+</section>
+
+<section id="chat">
+ <h2>💬 الشات</h2>
+ <ul>
+  <li>رسايل خاصة بين أي اتنين في الفريق، و<b>"الفريق كله"</b> للرسايل العامة.</li>
+  <li>الرسايل الجديدة بتوصل بتنبيه وصوت، وبيبان عددها جنب "الشات".</li>
+  <li>Enter للإرسال، و Shift+Enter لسطر جديد. (الملفات بتتبعت على الواتساب زي ما احنا متفقين.)</li>
+ </ul>
+</section>
+
+<section id="faq">
+ <h2>❓ أسئلة شائعة</h2>
+ <h3>نسيت الكود السري؟</h3><p>المدير يدخل "الموظفون" ← تعديل ← يكتب كود جديد. ادخل بالكود الجديد.</p>
+ <h3>مش قادر أبدأ التايمر؟</h3><p>لازم تكون مسجّل حضور ومش في استراحة (اضغط "رجوع" الأول).</p>
+ <h3>التسجيل مش شغال من الموبايل؟</h3><p>صح — تسجيل الحضور والانصراف من الكمبيوتر بس. لكن تقدر تشوف التاسكات والشات من الموبايل.</p>
+ <h3>بيقولي "انقطع الاتصال"؟</h3><p>البرنامج بيعيد الاتصال لوحده خلال ثواني. لو استمر اتأكد من النت.</p>
+</section>
+<footer>ديجيجو © 2026 — نظام إدارة الفريق</footer>
+</main>
+</body>
+</html>
